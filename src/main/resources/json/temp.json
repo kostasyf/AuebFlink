@@ -1,0 +1,44 @@
+{
+  "envParallelism": 1,
+  "delimiter": ";",
+  "operators": [
+    {
+      "FunctionType": "Filter",
+      "FunctionName": "FilterEqString",
+      "FunctionTopicSource": "behaviors",
+      "TableColumn_1": "user_id",
+      "TableColumn_2": "behavior",
+      "TableColumn_3": "cat_id",
+      "SavedForJoin": true,
+      "FilterValue": "s",
+      "FilterColumn": "behavior"
+    },
+    {
+      "FunctionType": "Join",
+      "FunctionName": "InnerJoin",
+      "FunctionTopicSource" : "categoryName",
+      "TableColumn_1" : "cat_name",
+      "TableColumn_2" : "sub_cat_name",
+      "TableColumn_3" : "sub_cat_id",
+      "JoinColumn_1" : "cat_id",
+      "JoinColumn_2" : "sub_cat_id",
+      "SelectedJoinColumn_1" : "user_id",
+      "SelectedJoinColumn_2" : "cat_name"
+    },
+    {
+      "FunctionType": "GroupBy",
+      "FunctionName": "groupbyCount",
+      "GroupByWin": true,
+      "GroupByTimeWin": 1,
+      "GroupByColumn": "cat_name",
+      "AggregationColumn": "cat_name"
+    },
+    {
+      "FunctionType": "Projection",
+      "FunctionName": "projectionTable",
+      "FunctionTopicSink": "resultsnetflix",
+      "ProjColumn1": "cat_name",
+      "ProjColumn2": "countTb"
+    }
+  ]
+}

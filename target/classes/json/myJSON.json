@@ -1,0 +1,163 @@
+{
+  "nodes" : [ {
+    "id" : 1,
+    "type" : "Source: Custom Source",
+    "pact" : "Data Source",
+    "contents" : "Source: Custom Source",
+    "parallelism" : 1
+  }, {
+    "id" : 2,
+    "type" : "Map",
+    "pact" : "Operator",
+    "contents" : "Map",
+    "parallelism" : 1,
+    "predecessors" : [ {
+      "id" : 1,
+      "ship_strategy" : "FORWARD",
+      "side" : "second"
+    } ]
+  }, {
+    "id" : 3,
+    "type" : "Source: Custom Source",
+    "pact" : "Data Source",
+    "contents" : "Source: Custom Source",
+    "parallelism" : 1
+  }, {
+    "id" : 4,
+    "type" : "Map",
+    "pact" : "Operator",
+    "contents" : "Map",
+    "parallelism" : 1,
+    "predecessors" : [ {
+      "id" : 3,
+      "ship_strategy" : "FORWARD",
+      "side" : "second"
+    } ]
+  }, {
+    "id" : 5,
+    "type" : "SourceConversion(table=[default_catalog.default_database.myTable10], fields=[user_id, behavior, cat_id, proctime])",
+    "pact" : "Operator",
+    "contents" : "SourceConversion(table=[default_catalog.default_database.myTable10], fields=[user_id, behavior, cat_id, proctime])",
+    "parallelism" : 1,
+    "predecessors" : [ {
+      "id" : 2,
+      "ship_strategy" : "FORWARD",
+      "side" : "second"
+    } ]
+  }, {
+    "id" : 6,
+    "type" : "Calc(select=[user_id, cat_id, proctime], where=[(behavior = _UTF-16LE's')])",
+    "pact" : "Operator",
+    "contents" : "Calc(select=[user_id, cat_id, proctime], where=[(behavior = _UTF-16LE's')])",
+    "parallelism" : 1,
+    "predecessors" : [ {
+      "id" : 5,
+      "ship_strategy" : "FORWARD",
+      "side" : "second"
+    } ]
+  }, {
+    "id" : 8,
+    "type" : "SourceConversion(table=[default_catalog.default_database.myTable2], fields=[cat_name, sub_cat_name, sub_cat_id])",
+    "pact" : "Operator",
+    "contents" : "SourceConversion(table=[default_catalog.default_database.myTable2], fields=[cat_name, sub_cat_name, sub_cat_id])",
+    "parallelism" : 1,
+    "predecessors" : [ {
+      "id" : 4,
+      "ship_strategy" : "FORWARD",
+      "side" : "second"
+    } ]
+  }, {
+    "id" : 9,
+    "type" : "Calc(select=[cat_name, sub_cat_id])",
+    "pact" : "Operator",
+    "contents" : "Calc(select=[cat_name, sub_cat_id])",
+    "parallelism" : 1,
+    "predecessors" : [ {
+      "id" : 8,
+      "ship_strategy" : "FORWARD",
+      "side" : "second"
+    } ]
+  }, {
+    "id" : 11,
+    "type" : "Join(joinType=[InnerJoin], where=[(cat_id = sub_cat_id)], select=[user_id, cat_id, proctime, cat_name, sub_cat_id], leftInputSpec=[NoUniqueKey], rightInputSpec=[NoUniqueKey])",
+    "pact" : "Operator",
+    "contents" : "Join(joinType=[InnerJoin], where=[(cat_id = sub_cat_id)], select=[user_id, cat_id, proctime, cat_name, sub_cat_id], leftInputSpec=[NoUniqueKey], rightInputSpec=[NoUniqueKey])",
+    "parallelism" : 1,
+    "predecessors" : [ {
+      "id" : 6,
+      "ship_strategy" : "HASH",
+      "side" : "second"
+    }, {
+      "id" : 9,
+      "ship_strategy" : "HASH",
+      "side" : "second"
+    } ]
+  }, {
+    "id" : 12,
+    "type" : "Calc(select=[user_id, cat_name, cat_id, proctime])",
+    "pact" : "Operator",
+    "contents" : "Calc(select=[user_id, cat_name, cat_id, proctime])",
+    "parallelism" : 1,
+    "predecessors" : [ {
+      "id" : 11,
+      "ship_strategy" : "FORWARD",
+      "side" : "second"
+    } ]
+  }, {
+    "id" : 14,
+    "type" : "GroupWindowAggregate(groupBy=[cat_name], window=[TumblingGroupWindow('w, proctime, 120000)], properties=[EXPR$0, EXPR$1, EXPR$2], select=[cat_name, COUNT(cat_name) AS EXPR$3, start('w) AS EXPR$0, end('w) AS EXPR$1, proctime('w) AS EXPR$2])",
+    "pact" : "Operator",
+    "contents" : "GroupWindowAggregate(groupBy=[cat_name], window=[TumblingGroupWindow('w, proctime, 120000)], properties=[EXPR$0, EXPR$1, EXPR$2], select=[cat_name, COUNT(cat_name) AS EXPR$3, start('w) AS EXPR$0, end('w) AS EXPR$1, proctime('w) AS EXPR$2])",
+    "parallelism" : 1,
+    "predecessors" : [ {
+      "id" : 12,
+      "ship_strategy" : "HASH",
+      "side" : "second"
+    } ]
+  }, {
+    "id" : 15,
+    "type" : "Calc(select=[cat_name, EXPR$3 AS countTb])",
+    "pact" : "Operator",
+    "contents" : "Calc(select=[cat_name, EXPR$3 AS countTb])",
+    "parallelism" : 1,
+    "predecessors" : [ {
+      "id" : 14,
+      "ship_strategy" : "FORWARD",
+      "side" : "second"
+    } ]
+  }, {
+    "id" : 16,
+    "type" : "SinkConversionToTuple2",
+    "pact" : "Operator",
+    "contents" : "SinkConversionToTuple2",
+    "parallelism" : 1,
+    "predecessors" : [ {
+      "id" : 15,
+      "ship_strategy" : "FORWARD",
+      "side" : "second"
+    } ]
+  }, {
+    "id" : 17,
+    "type" : "Map",
+    "pact" : "Operator",
+    "contents" : "Map",
+    "parallelism" : 1,
+    "predecessors" : [ {
+      "id" : 16,
+      "ship_strategy" : "FORWARD",
+      "side" : "second"
+    } ]
+  }, {
+    "id" : 19,
+    "type" : "Sink: Unnamed",
+    "pact" : "Data Sink",
+    "contents" : "Sink: Unnamed",
+    "parallelism" : 1,
+    "predecessors" : [ {
+      "id" : 17,
+      "ship_strategy" : "REBALANCE",
+      "side" : "second"
+    } ]
+  } ]
+}
+
